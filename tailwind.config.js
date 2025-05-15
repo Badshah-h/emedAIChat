@@ -152,6 +152,9 @@ module.exports = {
         filter: "filter",
         "backdrop-filter": "backdrop-filter",
       },
+      transitionTimingFunction: {
+        'bounce': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      },
       backdropBlur: {
         xs: "2px",
         md: "8px",
