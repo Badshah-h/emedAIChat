@@ -1,206 +1,180 @@
-import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import React from "react";
+import { motion } from "framer-motion";
+import { MessageSquare, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { SendIcon, XIcon, MinimizeIcon, MaximizeIcon } from "lucide-react";
-
-interface Message {
-  id: string;
-  content: string;
-  sender: "user" | "ai";
-  timestamp: Date;
-}
 
 interface WidgetPreviewProps {
-  headerColor?: string;
-  headerText?: string;
-  botName?: string;
-  botAvatar?: string;
-  primaryColor?: string;
-  secondaryColor?: string;
-  fontFamily?: string;
-  fontSize?: string;
-  borderRadius?: string;
-  showTimestamp?: boolean;
-  initialMessage?: string;
-  placeholderText?: string;
-  width?: number;
-  height?: number;
+  widget: {
+    name: string;
+    appearance: {
+      theme: string;
+      primaryColor: string;
+      fontFamily: string;
+      borderRadius: number;
+      position: string;
+    };
+    behavior: {
+      autoOpen: boolean;
+      welcomeMessage: string;
+      showBranding: boolean;
+      collectUserInfo: boolean;
+    };
+  };
 }
 
-const WidgetPreview = ({
-  headerColor = "#4f46e5",
-  headerText = "Chat with our AI Assistant",
-  botName = "AI Assistant",
-  botAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=assistant",
-  primaryColor = "#4f46e5",
-  secondaryColor = "#e5e7eb",
-  fontFamily = "Inter, system-ui, sans-serif",
-  fontSize = "14px",
-  borderRadius = "8px",
-  showTimestamp = true,
-  initialMessage = "Hello! How can I help you today?",
-  placeholderText = "Type your message here...",
-  width = 350,
-  height = 500,
-}: WidgetPreviewProps) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content: initialMessage,
-      sender: "ai",
-      timestamp: new Date(),
-    },
+const WidgetPreview: React.FC<WidgetPreviewProps> = ({ widget }) => {
+  const [isOpen, setIsOpen] = React.useState(true);
+  const [messages, setMessages] = React.useState([
+    { type: "bot", content: widget.behavior.welcomeMessage },
   ]);
-  const [inputValue, setInputValue] = useState("");
-  const [isMinimized, setIsMinimized] = useState(false);
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+  const getPositionClasses = () => {
+    switch (widget.appearance.position) {
+      case "bottom-right":
+        return "bottom-4 right-4";
+      case "bottom-left":
+        return "bottom-4 left-4";
+      case "top-right":
+        return "top-4 right-4";
+      case "top-left":
+        return "top-4 left-4";
+      default:
+        return "bottom-4 right-4";
+    }
+  };
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: inputValue,
-      sender: "user",
-      timestamp: new Date(),
+  const getThemeClasses = () => {
+    return widget.appearance.theme === "dark"
+      ? "bg-gray-800 text-white"
+      : "bg-white text-gray-800";
+  };
+
+  const getBorderRadiusStyle = () => {
+    return { borderRadius: `${widget.appearance.borderRadius}px` };
+  };
+
+  const getFontFamilyStyle = () => {
+    return { fontFamily: widget.appearance.fontFamily };
+  };
+
+  const getPrimaryColorStyle = () => {
+    return { backgroundColor: widget.appearance.primaryColor };
+  };
+
+  const getTextColorStyle = () => {
+    return { color: widget.appearance.primaryColor };
+  };
+
+  const getButtonStyle = () => {
+    return {
+      backgroundColor: widget.appearance.primaryColor,
+      color: "white",
+      borderRadius: `${widget.appearance.borderRadius}px`,
     };
-
-    setMessages([...messages, userMessage]);
-    setInputValue("");
-
-    // Simulate AI response after a short delay
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: "This is a simulated response from the AI assistant.",
-        sender: "ai",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-    }, 1000);
   };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
-
-  const widgetStyle = {
-    fontFamily,
-    fontSize,
-    "--primary-color": primaryColor,
-    "--secondary-color": secondaryColor,
-    "--border-radius": borderRadius,
-    width: `${width}px`,
-    height: isMinimized ? "auto" : `${height}px`,
-  } as React.CSSProperties;
 
   return (
-    <Card className="bg-white shadow-lg" style={widgetStyle}>
-      {/* Widget Header */}
-      <div
-        className="flex items-center justify-between p-3 rounded-t-lg"
-        style={{
-          backgroundColor: headerColor,
-          borderRadius: `${borderRadius} ${borderRadius} 0 0`,
-        }}
-      >
-        <div className="flex items-center space-x-2">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={botAvatar} alt={botName} />
-            <AvatarFallback>{botName.substring(0, 2)}</AvatarFallback>
-          </Avatar>
-          <span className="font-medium text-white">{headerText}</span>
-        </div>
-        <div className="flex space-x-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 text-white hover:bg-white/20"
-            onClick={() => setIsMinimized(!isMinimized)}
-          >
-            {isMinimized ? (
-              <MaximizeIcon size={14} />
-            ) : (
-              <MinimizeIcon size={14} />
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 text-white hover:bg-white/20"
-          >
-            <XIcon size={14} />
-          </Button>
-        </div>
-      </div>
+    <div className="relative w-full h-full flex items-center justify-center">
+      {/* Chat widget button */}
+      {!isOpen && (
+        <motion.button
+          className="absolute shadow-lg"
+          style={{
+            ...getButtonStyle(),
+            width: "60px",
+            height: "60px",
+            ...getBorderRadiusStyle(),
+          }}
+          onClick={() => setIsOpen(true)}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20 }}
+          className={`absolute ${getPositionClasses()} flex items-center justify-center shadow-lg`}
+        >
+          <MessageSquare className="h-6 w-6" />
+        </motion.button>
+      )}
 
-      {!isMinimized && (
-        <>
-          {/* Messages Container */}
-          <CardContent
-            className="p-0 overflow-y-auto"
-            style={{ height: "calc(100% - 110px)" }}
+      {/* Chat widget window */}
+      {isOpen && (
+        <motion.div
+          className={`absolute ${getPositionClasses()} ${getThemeClasses()} shadow-xl flex flex-col`}
+          style={{
+            ...getBorderRadiusStyle(),
+            ...getFontFamilyStyle(),
+            width: "300px",
+            height: "400px",
+            overflow: "hidden",
+          }}
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        >
+          {/* Header */}
+          <div
+            className="p-4 flex justify-between items-center"
+            style={getPrimaryColorStyle()}
           >
-            <div className="p-4 space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[80%] p-3 rounded-lg ${
-                      message.sender === "user"
-                        ? "bg-primary text-white"
-                        : "bg-secondary text-foreground"
-                    }`}
-                    style={{
-                      backgroundColor:
-                        message.sender === "user"
-                          ? primaryColor
-                          : secondaryColor,
-                      color: message.sender === "user" ? "#fff" : "#000",
-                      borderRadius,
-                    }}
-                  >
-                    <p>{message.content}</p>
-                    {showTimestamp && (
-                      <div
-                        className="text-xs mt-1 opacity-70"
-                        style={{
-                          textAlign:
-                            message.sender === "user" ? "right" : "left",
-                        }}
-                      >
-                        {formatTime(message.timestamp)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center gap-2">
+              <Avatar className="h-8 w-8 bg-white/20">
+                <AvatarImage src="https://api.dicebear.com/7.x/bottts/svg?seed=widget" />
+                <AvatarFallback>AI</AvatarFallback>
+              </Avatar>
+              <div className="font-medium text-white">{widget.name}</div>
             </div>
-          </CardContent>
-
-          {/* Input Area */}
-          <div className="p-3 border-t flex items-center gap-2">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder={placeholderText}
-              className="flex-1"
-              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            />
             <Button
-              onClick={handleSendMessage}
+              variant="ghost"
               size="icon"
-              style={{ backgroundColor: primaryColor }}
+              className="text-white hover:bg-white/20 rounded-full h-8 w-8 p-0"
+              onClick={() => setIsOpen(false)}
             >
-              <SendIcon size={18} />
+              <X className="h-4 w-4" />
             </Button>
           </div>
-        </>
+
+          {/* Messages */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[80%] p-3 rounded-2xl ${message.type === "user" ? "bg-primary text-white" : widget.appearance.theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}
+                  style={message.type === "user" ? getPrimaryColorStyle() : {}}
+                >
+                  {message.content}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Input */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Type your message..."
+                className="flex-1"
+                style={{
+                  ...getBorderRadiusStyle(),
+                  borderColor: widget.appearance.primaryColor,
+                }}
+              />
+              <Button style={getButtonStyle()}>
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+            {widget.behavior.showBranding && (
+              <div className="mt-2 text-xs text-center text-gray-500 dark:text-gray-400">
+                Powered by AI Chat Admin
+              </div>
+            )}
+          </div>
+        </motion.div>
       )}
-    </Card>
+    </div>
   );
 };
 

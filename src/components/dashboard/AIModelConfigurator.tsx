@@ -273,7 +273,6 @@ const AIModelConfigurator = () => {
           </Button>
         </div>
       </div>
-
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-3">
           <Tabs
@@ -411,7 +410,6 @@ const AIModelConfigurator = () => {
                         }
                       />
                     </div>
-
                     <div>
                       <Label htmlFor="model-select">AI Model</Label>
                       <Select
@@ -431,8 +429,32 @@ const AIModelConfigurator = () => {
                           ))}
                         </SelectContent>
                       </Select>
+                      <div className="w-0.5 h-2.5"></div>
                     </div>
-
+                    <div>
+                      <Label htmlFor="model-select">AI Model</Label>
+                      <Select
+                        value={formConfig.modelId}
+                        onValueChange={(value) =>
+                          setFormConfig({
+                            ...formConfig,
+                            modelId: value,
+                          })
+                        }
+                      >
+                        <SelectTrigger id="model-select">
+                          <SelectValue placeholder="Select a model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {models.map((model) => (
+                            <SelectItem key={model.id} value={model.id}>
+                              {model.name}({model.provider})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="w-0.5 h-2.5"></div>
+                    </div>
                     <div>
                       <Label htmlFor="temperature">
                         Temperature: {formConfig.temperature}
@@ -456,7 +478,6 @@ const AIModelConfigurator = () => {
                         <span>More Creative</span>
                       </div>
                     </div>
-
                     <div>
                       <Label htmlFor="max-tokens">Max Tokens</Label>
                       <Input
@@ -471,7 +492,6 @@ const AIModelConfigurator = () => {
                         }
                       />
                     </div>
-
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="context-awareness"
@@ -487,7 +507,6 @@ const AIModelConfigurator = () => {
                         Enable Context Awareness
                       </Label>
                     </div>
-
                     {formConfig.contextAwareness && (
                       <div>
                         <Label htmlFor="context-depth">
