@@ -2,19 +2,9 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  MessageSquare,
-  Brain,
-  BarChart3,
-  Code,
-  Users,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-  Bot,
-} from "lucide-react";
+import { useLayout } from "@/components/layout/LayoutContext";
+import { ChevronLeft, Bot } from "lucide-react";
+import { navItems } from "./navItems";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -30,30 +20,28 @@ interface SidebarProps {
   setCollapsed: (collapsed: boolean) => void;
 }
 
-const navItems = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/widgets", label: "Widgets", icon: MessageSquare },
-  { path: "/ai-models", label: "AI Models", icon: Brain },
-  { path: "/analytics", label: "Analytics", icon: BarChart3 },
-  { path: "/integration", label: "Integration", icon: Code },
-  { path: "/users", label: "Users", icon: Users },
-  { path: "/settings", label: "Settings", icon: Settings },
-];
-
 export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
   const location = useLocation();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const layoutContext = useLayout();
+
+  // Use context values if available, otherwise use props
+  const isCollapsed = layoutContext ? layoutContext.sidebarCollapsed : collapsed;
 
   const toggleSidebar = () => {
-    setCollapsed(!collapsed);
+    if (layoutContext) {
+      layoutContext.toggleSidebar();
+    } else {
+      setCollapsed(!collapsed);
+    }
   };
 
   return (
     <motion.div
-      className={cn("sidebar", collapsed && "collapsed")}
+      className={cn("sidebar", isCollapsed && "collapsed")}
       initial={false}
       animate={
-        collapsed
+        isCollapsed
           ? { width: "var(--sidebar-width-collapsed)" }
           : { width: "var(--sidebar-width)" }
       }
@@ -66,7 +54,7 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     >
       <div className="flex h-16 items-center px-4 justify-between">
         <AnimatePresence>
-          {!collapsed && (
+          {!isCollapsed && (
             <motion.div
               className="flex items-center gap-2"
               initial={{ opacity: 0, x: -20 }}
@@ -102,7 +90,7 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         >
           <motion.div
             initial={{ rotate: 0 }}
-            animate={{ rotate: collapsed ? 180 : 0 }}
+            animate={{ rotate: isCollapsed ? 180 : 0 }}
             transition={{ duration: 0.5, type: "spring" }}
           >
             <ChevronLeft size={18} />
@@ -114,7 +102,10 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         <TooltipProvider delayDuration={100}>
           <nav className="grid items-start text-sm font-medium gap-2">
             {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
+              // Check if current path matches the nav item path or if it's the root path and the item is dashboard
+              const isActive =
+                location.pathname === item.path ||
+                (location.pathname === "/" && item.path === "/dashboard");
               const Icon = item.icon;
 
               return (
@@ -142,7 +133,7 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                       </motion.div>
 
                       <AnimatePresence>
-                        {!collapsed && (
+                        {!isCollapsed && (
                           <motion.span
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -168,7 +159,7 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                       )}
                     </Link>
                   </TooltipTrigger>
-                  {collapsed && (
+                  {isCollapsed && (
                     <TooltipContent
                       side="right"
                       className="glass-effect border-none"
@@ -186,7 +177,7 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
       <div className="p-4 card-gradient-border mx-2 mb-4">
         <div className="card-gradient-border-content p-3">
           <div className="flex items-center justify-between">
-            {!collapsed ? (
+            {!isCollapsed ? (
               <>
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10 border-2 border-primary/20 p-0.5">

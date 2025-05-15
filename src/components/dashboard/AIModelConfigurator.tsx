@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   PlusCircle,
   Search,
-  Settings,
   TestTube,
   Save,
   Trash2,
-  Check,
 } from "lucide-react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { DashboardPage } from "@/components/dashboard/base/DashboardPage";
 import {
   Card,
   CardContent,
@@ -239,25 +239,21 @@ const AIModelConfigurator = () => {
       const selectedModelData = models.find((m) => m.id === formConfig.modelId);
       setTestResponse(
         `Response from ${selectedModelData?.name || "AI Model"}:\n\n` +
-          `Based on your configuration (Temperature: ${formConfig.temperature}, Context: ${formConfig.contextAwareness ? "Enabled" : "Disabled"}), ` +
-          `here is a simulated response to your prompt:\n\n` +
-          `This is a simulated response to demonstrate how the AI would respond with your current settings. ` +
-          `In a production environment, this would be an actual response from the selected AI model using your configured parameters.`,
+        `Based on your configuration (Temperature: ${formConfig.temperature}, Context: ${formConfig.contextAwareness ? "Enabled" : "Disabled"}), ` +
+        `here is a simulated response to your prompt:\n\n` +
+        `This is a simulated response to demonstrate how the AI would respond with your current settings. ` +
+        `In a production environment, this would be an actual response from the selected AI model using your configured parameters.`,
       );
       setIsTesting(false);
     }, 1500);
   };
 
   return (
-    <div className="bg-background p-6 h-full">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">AI Model Configuration</h1>
-          <p className="text-muted-foreground">
-            Configure and manage AI models for your chat widgets
-          </p>
-        </div>
-        <div className="flex gap-2">
+    <DashboardPage
+      title="AI Model Configuration"
+      description="Configure and manage AI models for your chat widgets"
+      actions={
+        <>
           <div className="relative w-64">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -271,8 +267,9 @@ const AIModelConfigurator = () => {
             <PlusCircle className="mr-2 h-4 w-4" />
             New Configuration
           </Button>
-        </div>
-      </div>
+        </>
+      }
+    >
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-3">
           <Tabs
@@ -652,8 +649,15 @@ const AIModelConfigurator = () => {
           </Card>
         </div>
       </div>
-    </div>
+    </DashboardPage>
   );
 };
 
-export default AIModelConfigurator;
+// Wrap the component with DashboardLayout
+const AIModelConfiguratorWithLayout = () => (
+  <DashboardLayout title="AI Model Configuration">
+    <AIModelConfigurator />
+  </DashboardLayout>
+);
+
+export default AIModelConfiguratorWithLayout;

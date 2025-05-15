@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Check, Copy, Download } from "lucide-react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { DashboardPage } from "@/components/dashboard/base/DashboardPage";
 import {
   Card,
   CardContent,
@@ -167,16 +169,11 @@ export class AppComponent {}
     widgets.find((w) => w.id === selectedWidget)?.name || "Select a widget";
 
   return (
-    <div className="bg-background p-6 w-full">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Integration Code Generator
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Generate code snippets to integrate your AI chat widgets into any
-          website or application.
-        </p>
-      </div>
+    <DashboardPage
+      title="Integration Code Generator"
+      description="Generate code snippets to integrate your AI chat widgets into any website or application."
+      fullWidth
+    >
 
       <div className="grid gap-6 md:grid-cols-12">
         <div className="md:col-span-4 space-y-6">
@@ -284,8 +281,15 @@ export class AppComponent {}
           </Card>
         </div>
       </div>
-    </div>
+    </DashboardPage>
   );
 };
 
-export default IntegrationCodeGenerator;
+// Wrap the component with DashboardLayout
+const IntegrationCodeGeneratorWithLayout = () => (
+  <DashboardLayout title="Integration Code Generator">
+    <IntegrationCodeGenerator />
+  </DashboardLayout>
+);
+
+export default IntegrationCodeGeneratorWithLayout;

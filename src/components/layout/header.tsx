@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLayout } from "@/components/layout/LayoutContext";
 import {
   Bell,
   Search,
@@ -30,6 +31,7 @@ interface HeaderProps {
 }
 
 export function Header({ title, onMenuClick }: HeaderProps) {
+  const layoutContext = useLayout();
   const [notifications] = useState([
     { id: 1, title: "New widget created", time: "2 min ago", read: false },
     { id: 2, title: "User feedback received", time: "1 hour ago", read: false },
@@ -44,6 +46,15 @@ export function Header({ title, onMenuClick }: HeaderProps) {
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
+  // Use context toggle if available, otherwise use prop
+  const handleMenuClick = () => {
+    if (layoutContext && layoutContext.toggleSidebar) {
+      layoutContext.toggleSidebar();
+    } else if (onMenuClick) {
+      onMenuClick();
+    }
+  };
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
@@ -54,7 +65,7 @@ export function Header({ title, onMenuClick }: HeaderProps) {
             variant="ghost"
             size="icon"
             className="md:hidden rounded-full hover:bg-primary/10"
-            onClick={onMenuClick}
+            onClick={handleMenuClick}
           >
             <Menu className="h-5 w-5" />
           </Button>

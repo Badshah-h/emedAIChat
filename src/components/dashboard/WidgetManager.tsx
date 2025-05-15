@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Search, Plus, Edit, Trash2, Filter } from "lucide-react";
 import { motion } from "framer-motion";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -872,4 +873,11 @@ const WidgetDetails: React.FC<WidgetDetailsProps> = ({
   );
 };
 
-export default WidgetManager;
+// Wrap the component with DashboardLayout
+const WidgetManagerWithLayout = () => (
+  <DashboardLayout title="Widget Manager">
+    <WidgetManager />
+  </DashboardLayout>
+);
+
+export default WidgetManagerWithLayout;

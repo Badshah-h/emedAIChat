@@ -1,44 +1,48 @@
 import { Suspense, lazy } from "react";
 import { useRoutes, Routes, Route } from "react-router-dom";
-import Home from "./components/home";
-import routes from "tempo-routes";
+import { routes as appRoutes } from "./routes";
+import tempoRoutes from "tempo-routes";
+import { Toaster } from "@/components/ui/toaster";
 
-// Lazy load dashboard components
-const WidgetManager = lazy(
-  () => import("./components/dashboard/WidgetManager"),
-);
-const AIModelConfigurator = lazy(
-  () => import("./components/dashboard/AIModelConfigurator"),
-);
-const IntegrationCodeGenerator = lazy(
-  () => import("./components/dashboard/IntegrationCodeGenerator"),
+// Lazy load landing page
+const LandingPage = lazy(() => import("@/components/landing/LandingPage"));
+
+// Loading component
+const LoadingFallback = () => (
+  <div className="flex h-screen w-full items-center justify-center bg-background">
+    <div className="flex flex-col items-center gap-2">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      <p className="text-sm text-muted-foreground">Loading...</p>
+    </div>
+  </div>
 );
 
 function App() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-screen w-full items-center justify-center bg-background">
-          <div className="flex flex-col items-center gap-2">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            <p className="text-sm text-muted-foreground">Loading...</p>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingFallback />}>
       <>
+        <Toaster />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/widgets" element={<WidgetManager />} />
-          <Route path="/ai-models" element={<AIModelConfigurator />} />
-          <Route path="/integration" element={<IntegrationCodeGenerator />} />
+          {/* Make landing page the default route */}
+          <Route path="/" element={<LandingPage />} />
+
+          {/* Dashboard routes */}
+          {appRoutes
+            .filter(route => route.path !== "/landing" && route.path !== "/")
+            .map((route) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={route.element}
+              />
+            ))}
 
           {/* Add this before the tempo routes to ensure they work */}
           {import.meta.env.VITE_TEMPO === "true" && (
             <Route path="/tempobook/*" />
           )}
         </Routes>
-        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
+        {import.meta.env.VITE_TEMPO === "true" && useRoutes(tempoRoutes)}
       </>
     </Suspense>
   );
